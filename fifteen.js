@@ -1,15 +1,19 @@
-window.onload = function(){
-    let puzzleArea = document.getElementById('puzzlearea');
-    puzzleArea.style.display = 'grid';
-    puzzleArea.style.gridTemplateColumns = 'repeat(4,auto)';
-    puzzlePieces = document.querySelectorAll('#puzzlearea div');
+//Multiple Backgrounds Extra Feature
 
+window.onload = function(){
+    controls();
+    EMPTY_TILE = "4,4";
+    PUZZLEAREA = document.getElementById('puzzlearea');
+    puzzlearea.style.display = 'grid';
+    puzzlearea.style.gridTemplateColumns = 'repeat(4,auto)';
+    puzzlePieces = document.querySelectorAll('#puzzlearea div');
+    RandomLoad();
+    CLICKED = false;
     for(var x = 0; x<puzzlePieces.length;x++){
         pieceSetup(puzzlePieces[x],x)   
    }
    var button = document.getElementById('shufflebutton');
    button.addEventListener('click',shuffle);
-   clicked = false;
 
 }
  
@@ -35,7 +39,7 @@ function pieceSetup(piece,i){
     piece.style.backgroundPosition =positionx + positiony;
     idInitialize(piece,makeID(row+1,column+1));
     piece.addEventListener("mouseover",movable);
-    piece.addEventListener("mouseleave",original);
+    piece.addEventListener("mouseleave",revert);
     piece.addEventListener("click",move);
 }
 
@@ -54,49 +58,25 @@ function pieceSetup(piece,i){
 // In all other cases, we are switching the positions of the current piece, with the new random piece
 // and changing thier ids to their new position.
 function shuffle(){
-    clicked = true;
-    for(var x=1;x<5;x++){
-       for(var y = 1;y<5;y++){
-           var newx = Math.floor(Math.random() * 4);  
-           var newy = Math.floor(Math.random() * 4);
-           var currentID = makeID(x,y);
-           var newID = makeID(newx+1,newy+1);
-           var currentPiece = document.getElementById(currentID);  
-           var newPiece = document.getElementById(newID);
-               
-           if(currentPiece==null){continue;}
-           else{
-                    if(newPiece==null){
-                            switch1(currentPiece,newx+1,newy+1);
-                            idInitialize(currentPiece,newID);                         
-                        }
-                        else{   
-                            switch2(currentPiece,newPiece,newx+1,newy+1,x,y);                               
-                            idInitialize(currentPiece,newID);
-                            idInitialize(newPiece,currentID);
-                        } 
-                         
-            }
-        }
-   
-
+    CLICKED = true;
+    for(var i=0;i<99;i++){
+        current = PUZZLEAREA.children[Math.floor(Math.random() *15)];
+        switch1(current);
     }
+
 }
 
 function idInitialize(item,newid){
     item.setAttribute("id",newid);
 }
 
-function switch1(current,newx,newy){
-    current.style.gridColumn = (newy).toString();
-    current.style.gridRow = (newx).toString();
-}
+function switch1(current){
+    current.style.gridColumn = EMPTY_TILE[0];
+    current.style.gridRow = EMPTY_TILE[2];
+    var oldID = current.getAttribute("id");
+    idInitialize(current,EMPTY_TILE);
+    EMPTY_TILE = oldID;
 
-function switch2(current,newP,newx,newy,x,y){
-    current.style.gridColumn = (newy).toString();
-    current.style.gridRow = (newx).toString();          
-    newP.style.gridRow = (x).toString();
-    newP.style.gridColumn = (y).toString();
 }
 
 function makeID(x,y){
@@ -112,35 +92,81 @@ function isMovable(p){
     pID = p.getAttribute("id");
     xcoord = parseInt(pID[0]);
     ycoord = parseInt(pID[2]);
-    if(document.getElementById(makeID(xcoord-1,ycoord))==null && (xcoord-1)>=1)
-        return [true,makeID(xcoord-1,ycoord)];
-    if(document.getElementById(makeID(xcoord,ycoord-1)) ==null && (ycoord-1)>=1)
-        return [true,makeID(xcoord,ycoord-1)];
-    if(document.getElementById(makeID(xcoord+1,ycoord))== null&& (xcoord+1)<=4)
-        return [true,makeID(xcoord+1,ycoord)];
-    if(document.getElementById(makeID(xcoord,ycoord+1))==null && (ycoord+1)<=4)
-        return [true,makeID(xcoord,ycoord+1)];
-    return [false,0];
+    if(makeID(xcoord-1,ycoord)==EMPTY_TILE && (xcoord-1)>=1)
+        return true;
+    if(makeID(xcoord,ycoord-1) ==EMPTY_TILE && (ycoord-1)>=1)
+        return true;
+    if(makeID(xcoord+1,ycoord)== EMPTY_TILE&& (xcoord+1)<=4)
+        return true;
+    if(makeID(xcoord,ycoord+1)==EMPTY_TILE && (ycoord+1)<=4)
+        return true;
+    return false;
 }
 
 function movable(){
-    if(isMovable(this)[0]&& clicked)
+    if(isMovable(this)&& CLICKED)
         this.classList.add('movablepiece');
 }
 
-function original(){
-    if(clicked)
+function revert(){
     this.classList.remove('movablepiece');
 }
 
 function move(){
-    var piece_move = isMovable(this);
-    if(piece_move[0]){
-        console.log(this.getAttribute("id"));
-        id = piece_move[1];
-        switch1(this,parseInt(id[0]),parseInt(id[2]));
-        idInitialize(this,id);
-        console.log(this.getAttribute("id"));
+    if(isMovable(this)){
+        switch1(this);
     }
 }
 
+function controls(){
+    var controls = document.getElementById('controls');
+    var imageButtons = document.createElement("div");
+    imageButtons.style.marginTop = "10px"
+
+   var image1= document.createElement("button");
+   image1.innerHTML = "<img src = \"background.jpg\"/ height = \" 100px\" width = \"100px\">";
+   image1.style.margin = "5px";
+   image1.addEventListener("click",changePic)
+   imageButtons.appendChild(image1);
+
+   var image2 = document.createElement("button");
+   image2.innerHTML = "<img src = \"https://images.unsplash.com/photo-1516617442634-75371039cb3a?ixlib=rb-0.3.5&ixid=eyJhcHBfaWQiOjEyMDd9&s=6febeaaa69fd0cab717c6bab09776051&w=1000&q=80\"/ height = \" 100px\" width = \"100px\">"
+   image2.style.margin = "5px";
+   image2.addEventListener("click",changePic);
+   imageButtons.appendChild(image2);
+   
+   var image3= document.createElement("button");
+   image3.innerHTML = "<img src = \"http://www.cartoonswallpapers.net/wallpapers/naruto-shippuden-background-ipad-air-2.jpg\"/ height = \" 100px\" width = \"100px\">"
+   image3.style.margin = "5px";
+   image3.addEventListener("click",changePic);
+   imageButtons.appendChild(image3);
+  
+   var image4= document.createElement("button");
+   image4.innerHTML = "<img src = \"https://static.makeuseof.com/wp-content/uploads/2017/02/Photoshop-Replace-Background-Featured-670x335.jpg\"/ height = \" 100px\" width = \"100px\">"
+   image4.style.margin = "5px";
+   image4.addEventListener("click",changePic);
+   imageButtons.appendChild(image4);
+   
+   var image5= document.createElement("button");
+   image5.innerHTML = "<img src = \"https://brightcove04pmdo-a.akamaihd.net/5104226627001/5104226627001_5222667852001_5214854492001-vs.jpg?pubId=5104226627001&videoId=5214854492001\"/ height = \" 100px\" width = \"100px\">"
+   image5.style.margin = "5px";
+   image5.addEventListener("click",changePic);
+   imageButtons.appendChild(image5);
+   
+   controls.appendChild(imageButtons);
+}
+
+function changePic(){
+    setBackground(this.querySelector("img"));
+}
+function setBackground(image){
+    for(var i=0;i<15;i++){
+        PUZZLEAREA.children[i].style.backgroundImage = "url("+ image.src + ")";
+    }   
+}
+
+function RandomLoad(){
+    var x = Math.floor(Math.random() *5);
+    image = document.querySelectorAll("#controls img")[x];
+    setBackground(image);
+}
