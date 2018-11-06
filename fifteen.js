@@ -43,20 +43,8 @@ function pieceSetup(piece,i){
     piece.addEventListener("click",move);
 }
 
-//To shuffle we need to move the puzzle pieces to a random position on the grid.
-//We initially set out to go through each puzzle piece and switch it with a new random
-//piece that will be found with the Math.random function.
-//There are certain limitations,however, while looping, the loops will reach a point where it
-// will look for the element with id (4,4) which would be the missing piece from the grid
-// or where it will the new element found using the random number system is equal to the 
-//current piece being accessed. In this case we do no want the pieces to shuffle.
-//We also do not want to have to reshuffle pieces that have already been shuffled. 
-// Each time a piece is shuffled, its id is added to a list, so when shuffling is to take place
-// again. If any of the pieces to be suffled is in that list, we will not reshuffle.
-// Another scenario is when the random piece, is the empty square on the grid. In that case, we did not 
-// switch the position of two pieces, instead we only move one piece.
-// In all other cases, we are switching the positions of the current piece, with the new random piece
-// and changing thier ids to their new position.
+// Shuffle aims to rearrange all of the puzzle pieces, and the empty space on the board. For 99 iterations, 
+// a random puzzle piece will be chozen and its position swapped with the empty tile.
 function shuffle(){
     CLICKED = true;
     for(var i=0;i<99;i++){
@@ -70,6 +58,10 @@ function idInitialize(item,newid){
     item.setAttribute("id",newid);
 }
 
+// Switch1 switches a piece with the empty tile. To do this, it gets the location of the empty
+// tile , row and column from its assignment and then moves to that location.
+// The id of this tile is replaced with its new position, ie the old position of the empty tile
+// and the empty tile now has a value equal to its new position, the old position of the puzzle piece
 function switch1(current){
     current.style.gridColumn = EMPTY_TILE[0];
     current.style.gridRow = EMPTY_TILE[2];
@@ -86,19 +78,18 @@ function makeID(x,y){
 //isMovable checks if a paticular puzzle piece is next to the empty square.
 //It does this by checking if any of the 4 possible squares that a piece
 // can move it is empty, is not an element with an id. If it is them it returns true.
-//as well as the id that the new piece will be given. "The id of the empty space"
-// If not this function will return false
+// Otherwise the function returns false
 function isMovable(p){
     pID = p.getAttribute("id");
     xcoord = parseInt(pID[0]);
     ycoord = parseInt(pID[2]);
-    if(makeID(xcoord-1,ycoord)==EMPTY_TILE && (xcoord-1)>=1)
+    if(makeID(xcoord-1,ycoord)==EMPTY_TILE)
         return true;
-    if(makeID(xcoord,ycoord-1) ==EMPTY_TILE && (ycoord-1)>=1)
+    if(makeID(xcoord,ycoord-1) ==EMPTY_TILE)
         return true;
-    if(makeID(xcoord+1,ycoord)== EMPTY_TILE&& (xcoord+1)<=4)
+    if(makeID(xcoord+1,ycoord)== EMPTY_TILE)
         return true;
-    if(makeID(xcoord,ycoord+1)==EMPTY_TILE && (ycoord+1)<=4)
+    if(makeID(xcoord,ycoord+1)==EMPTY_TILE)
         return true;
     return false;
 }
@@ -118,6 +109,10 @@ function move(){
     }
 }
 
+//Controls sets up the control panel with the new backgrounds that the puzzle area can be changed to.
+// 5 buttons are created with an image in it. These buttons are added to a div tag and then to the control
+// panel. If any one of the buttons are clicked, then the src information of the image in the button is 
+// collected and the background image of each puzzle piece is then changed.
 function controls(){
     var controls = document.getElementById('controls');
     var imageButtons = document.createElement("div");
@@ -164,7 +159,9 @@ function setBackground(image){
         PUZZLEAREA.children[i].style.backgroundImage = "url("+ image.src + ")";
     }   
 }
-
+//To load a random image as the background, a random number from 0 to 5 is selected and this number represents
+// the index of list of all images in the control panel. Once an image is selected, the background of all the 
+// puzzle pieces are set.
 function RandomLoad(){
     var x = Math.floor(Math.random() *5);
     image = document.querySelectorAll("#controls img")[x];
